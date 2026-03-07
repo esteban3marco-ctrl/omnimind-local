@@ -1,0 +1,19 @@
+# OMNIMIND LOCAL — Context: Car
+# Behavior rules when Leo detects driving mode
+
+context: "car"
+detection: {method: "obd_connection"}   # Activates when OBD-II is connected
+
+behavior:
+  response_length: "very_short"
+  max_response_tokens: 128
+  voice_only: true                       # NO text while driving
+  available_agents: ["car", "music", "calendar", "notes"]
+  safety_rules:
+    - "Never request text-based confirmation"
+    - "Short voice-only responses"
+    - "Complex tasks: save for later"
+  proactive_triggers:
+    - {type: "fuel_low", condition: "fuel < 15%", priority: "high"}
+    - {type: "event_reminder", condition: "next_event < 30min", priority: "high"}
+    - {type: "speed_alert", condition: "speed > 130", priority: "medium"}

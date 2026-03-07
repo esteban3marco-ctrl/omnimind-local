@@ -1,0 +1,401 @@
+# OMNIMIND LOCAL — Universal Device Configuration
+# ══════════════════════════════════════════════════
+#
+# Any device can be connected to Leo by defining:
+#   1. id: unique identifier
+#   2. protocol: how to talk to it (serial, mqtt, http, udp, ble, websocket)
+#   3. connection: protocol-specific connection details
+#   4. capabilities: what it can do (becomes LLM tools automatically)
+#   5. command_map: maps capability names to actual device commands
+#
+# Leo doesn't need to know HOW a device works.
+# He only needs to know WHAT it can do.
+#
+# Supported protocols:
+#   serial    — Arduino, ESP32, robotic arms, relay boards (USB)
+#   mqtt      — Home Assistant, IoT sensors, smart home (WiFi)
+#   http      — REST APIs, local services, SDKs with HTTP interface
+#   udp       — Drones (Tello), custom protocols
+#   ble       — Wearables, OBD-II adapters, sensors (Bluetooth)
+#   websocket — Real-time services, custom bridges
+
+devices:
+  registered:
+
+    # ─── EXAMPLE: DJI Tello Drone ───
+    # - id: "drone_tello"
+    #   name: "Tello Drone"
+    #   type: "drone"
+    #   description: "DJI Tello drone with 720p camera"
+    #   location: "home"
+    #   tags: ["aerial", "camera", "mobile"]
+    #   protocol: "udp"
+    #   auto_connect: false
+    #   connection:
+    #     host: "192.168.10.1"
+    #     port: 8889
+    #     local_port: 8889
+    #     init_command: "command"
+    #     timeout: 10
+    #   capabilities:
+    #     - name: "takeoff"
+    #       description: "Take off and hover"
+    #       category: "action"
+    #       requires_confirmation: true
+    #     - name: "land"
+    #       description: "Land at current position"
+    #       category: "action"
+    #     - name: "move"
+    #       description: "Move in a direction"
+    #       category: "action"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           direction: {type: "string", enum: ["forward", "back", "left", "right", "up", "down"]}
+    #           distance_cm: {type: "integer", minimum: 20, maximum: 500}
+    #         required: ["direction", "distance_cm"]
+    #     - name: "rotate"
+    #       description: "Rotate clockwise or counter-clockwise"
+    #       category: "action"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           direction: {type: "string", enum: ["cw", "ccw"]}
+    #           degrees: {type: "integer", minimum: 1, maximum: 360}
+    #         required: ["direction", "degrees"]
+    #     - name: "battery"
+    #       description: "Get battery level"
+    #       category: "query"
+    #     - name: "emergency"
+    #       description: "Emergency stop — motors off immediately"
+    #       category: "action"
+    #   command_map:
+    #     takeoff: "takeoff"
+    #     land: "land"
+    #     move: "forward"        # Adapter will append params: "forward 100"
+    #     rotate: "cw"
+    #     battery: "battery?"
+    #     emergency: "emergency"
+
+    # ─── EXAMPLE: Smart Home via Home Assistant (MQTT) ───
+    # - id: "home_assistant"
+    #   name: "Home Assistant"
+    #   type: "smart_home_hub"
+    #   description: "Central smart home controller"
+    #   location: "home"
+    #   tags: ["lights", "thermostat", "sensors"]
+    #   protocol: "mqtt"
+    #   auto_connect: true
+    #   connection:
+    #     host: "192.168.1.50"
+    #     port: 1883
+    #     username: "omnimind"
+    #     password: "${HA_MQTT_PASSWORD}"
+    #   capabilities:
+    #     - name: "light_toggle"
+    #       description: "Turn a light on or off"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           room: {type: "string", enum: ["living_room", "bedroom", "kitchen", "office"]}
+    #           state: {type: "string", enum: ["on", "off", "toggle"]}
+    #           brightness: {type: "integer", minimum: 0, maximum: 100}
+    #         required: ["room", "state"]
+    #     - name: "thermostat_set"
+    #       description: "Set thermostat temperature"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           temperature: {type: "number", minimum: 16, maximum: 28}
+    #           mode: {type: "string", enum: ["heat", "cool", "auto", "off"]}
+    #         required: ["temperature"]
+    #     - name: "sensor_read"
+    #       description: "Read a sensor value (temperature, humidity, motion)"
+    #       category: "query"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           sensor: {type: "string"}
+    #         required: ["sensor"]
+    #   command_map:
+    #     light_toggle: "homeassistant/light/{room}/set"
+    #     thermostat_set: "homeassistant/climate/thermostat/set"
+    #     sensor_read: "homeassistant/sensor/{sensor}/state"
+
+    # ─── EXAMPLE: IP Camera (HTTP) ───
+    # - id: "cam_frontdoor"
+    #   name: "Front Door Camera"
+    #   type: "camera"
+    #   description: "IP camera at front entrance"
+    #   location: "front_door"
+    #   tags: ["surveillance", "camera", "outdoor"]
+    #   protocol: "http"
+    #   auto_connect: true
+    #   connection:
+    #     base_url: "http://192.168.1.100"
+    #     health_endpoint: "api/status"
+    #   capabilities:
+    #     - name: "snapshot"
+    #       description: "Take a photo"
+    #       category: "query"
+    #     - name: "stream_url"
+    #       description: "Get RTSP stream URL"
+    #       category: "query"
+    #     - name: "pan_tilt"
+    #       description: "Move camera (if PTZ capable)"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           pan: {type: "integer", minimum: -180, maximum: 180}
+    #           tilt: {type: "integer", minimum: -90, maximum: 90}
+    #         required: ["pan", "tilt"]
+    #   command_map:
+    #     snapshot: "api/snapshot"
+    #     stream_url: "api/stream"
+    #     pan_tilt: "api/ptz/move"
+
+    # ─── EXAMPLE: Arduino Pan-Tilt + Relays (Serial) ───
+    # - id: "arduino_desk"
+    #   name: "Desk Controller"
+    #   type: "microcontroller"
+    #   description: "Arduino controlling pan-tilt camera and relay board"
+    #   location: "office"
+    #   tags: ["servo", "relay", "camera"]
+    #   protocol: "serial"
+    #   auto_connect: true
+    #   connection:
+    #     port: "/dev/ttyUSB0"
+    #     baud: 9600
+    #     timeout: 2
+    #   capabilities:
+    #     - name: "pan_tilt"
+    #       description: "Point the desk camera in a direction"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           pan: {type: "integer", minimum: 0, maximum: 180, description: "Horizontal (90=center)"}
+    #           tilt: {type: "integer", minimum: 0, maximum: 180, description: "Vertical (90=center)"}
+    #         required: ["pan", "tilt"]
+    #     - name: "relay_toggle"
+    #       description: "Toggle a relay (0=desk lamp, 1=3D printer, 2=fan)"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           channel: {type: "integer", minimum: 0, maximum: 3}
+    #           state: {type: "string", enum: ["on", "off"]}
+    #         required: ["channel", "state"]
+    #   command_map:
+    #     pan_tilt: "PANTILT"
+    #     relay_toggle: "RELAY"
+
+    # ─── EXAMPLE: Smartwatch / Wearable (BLE) ───
+    # - id: "watch"
+    #   name: "Smartwatch"
+    #   type: "wearable"
+    #   description: "Fitness tracker / smartwatch"
+    #   location: "wrist"
+    #   tags: ["health", "notifications", "sensors"]
+    #   protocol: "ble"
+    #   connection:
+    #     mac_address: "AA:BB:CC:DD:EE:FF"
+    #   capabilities:
+    #     - name: "get_heart_rate"
+    #       description: "Read current heart rate"
+    #       category: "query"
+    #     - name: "get_steps"
+    #       description: "Get step count today"
+    #       category: "query"
+    #     - name: "send_notification"
+    #       description: "Send a haptic notification to the watch"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           message: {type: "string", maxLength: 100}
+    #         required: ["message"]
+
+    # ─── EXAMPLE: Car OBD-II (BLE or Serial) ───
+    # - id: "car_obd"
+    #   name: "Toyota C-HR OBD"
+    #   type: "vehicle"
+    #   description: "Car diagnostics via OBD-II adapter"
+    #   location: "car"
+    #   tags: ["vehicle", "diagnostics", "sensors"]
+    #   protocol: "ble"
+    #   connection:
+    #     mac_address: "AA:BB:CC:DD:EE:FF"
+    #   capabilities:
+    #     - name: "get_speed"
+    #       description: "Current vehicle speed"
+    #       category: "query"
+    #     - name: "get_rpm"
+    #       description: "Engine RPM"
+    #       category: "query"
+    #     - name: "get_fuel"
+    #       description: "Fuel level percentage"
+    #       category: "query"
+    #     - name: "get_engine_codes"
+    #       description: "Read diagnostic trouble codes"
+    #       category: "query"
+    #     - name: "get_coolant_temp"
+    #       description: "Engine coolant temperature"
+    #       category: "query"
+
+    # ─── EXAMPLE: Robot Base (WebSocket via ROS Bridge) ───
+    # - id: "home_robot"
+    #   name: "Home Robot"
+    #   type: "mobile_robot"
+    #   description: "Wheeled robot with camera, mic, and speaker"
+    #   location: "home"
+    #   tags: ["mobile", "camera", "speaker", "microphone"]
+    #   protocol: "websocket"
+    #   connection:
+    #     url: "ws://192.168.1.120:9090"    # rosbridge_server
+    #   capabilities:
+    #     - name: "go_to"
+    #       description: "Navigate to a room or named location"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           location: {type: "string", description: "Room name or coordinates"}
+    #         required: ["location"]
+    #     - name: "follow_me"
+    #       description: "Follow the user around the house"
+    #     - name: "patrol"
+    #       description: "Patrol a route through the house"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           rooms: {type: "array", items: {type: "string"}}
+    #         required: ["rooms"]
+    #     - name: "look_at"
+    #       description: "Point the robot's camera at something"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           direction: {type: "string", enum: ["left", "right", "up", "down", "forward"]}
+    #         required: ["direction"]
+    #     - name: "speak"
+    #       description: "Play audio through the robot's speaker"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           text: {type: "string"}
+    #         required: ["text"]
+    #     - name: "get_camera_frame"
+    #       description: "Capture what the robot sees"
+    #       category: "query"
+    #     - name: "get_location"
+    #       description: "Where is the robot right now?"
+    #       category: "query"
+    #     - name: "dock"
+    #       description: "Return to charging dock"
+    #     - name: "emergency_stop"
+    #       description: "Stop all movement immediately"
+
+    # ─── EXAMPLE: 3D Printer via OctoPrint (HTTP) ───
+    # - id: "printer_3d"
+    #   name: "3D Printer"
+    #   type: "printer"
+    #   description: "3D printer controlled via OctoPrint"
+    #   location: "office"
+    #   tags: ["printer", "manufacturing"]
+    #   protocol: "http"
+    #   connection:
+    #     base_url: "http://192.168.1.80:5000"
+    #     headers: {"X-Api-Key": "${OCTOPRINT_API_KEY}"}
+    #     health_endpoint: "api/version"
+    #   capabilities:
+    #     - name: "get_status"
+    #       description: "Get printer status (printing, idle, error)"
+    #       category: "query"
+    #     - name: "get_progress"
+    #       description: "Get current print job progress"
+    #       category: "query"
+    #     - name: "pause_print"
+    #       description: "Pause the current print job"
+    #     - name: "resume_print"
+    #       description: "Resume a paused print job"
+    #     - name: "cancel_print"
+    #       description: "Cancel the current print job"
+    #       requires_confirmation: true
+    #     - name: "set_temperature"
+    #       description: "Set extruder or bed temperature"
+    #       parameters:
+    #         type: "object"
+    #         properties:
+    #           target: {type: "string", enum: ["extruder", "bed"]}
+    #           temperature: {type: "integer", minimum: 0, maximum: 300}
+    #         required: ["target", "temperature"]
+
+# ─── HOW TO ADD YOUR OWN DEVICE ───
+#
+# 1. Uncomment one of the examples above (or copy it)
+# 2. Change the id, name, connection details
+# 3. Define capabilities (what it can do)
+# 4. Define command_map (how capabilities map to actual commands)
+# 5. Restart Leo — the device appears as tools automatically
+#
+# That's it. Leo can now control your device by voice.
+#
+# ─── LONG-RANGE / REMOTE DEVICES ───
+#
+# For devices beyond WiFi/Bluetooth range (across the city, country, or world),
+# use the "tunnel" protocol. This routes any protocol through a VPN:
+#
+# Prerequisites:
+#   - WireGuard, Tailscale, or ZeroTier VPN running on both Home Base and remote device
+#   - Remote device has 4G/LTE SIM or any internet connection
+#   - VPN assigns a fixed IP to the remote device (e.g. 10.0.0.50)
+#
+# Example: Drone on a remote property (connected via 4G + WireGuard)
+#
+#   - id: "remote_drone"
+#     name: "Remote Property Drone"
+#     type: "drone"
+#     location: "remote_property"
+#     protocol: "tunnel"
+#     connection:
+#       vpn_ip: "10.0.0.50"          # Fixed VPN IP of the remote device
+#       port: 8080                     # Port on the remote device
+#       inner_protocol: "http"         # What runs on the remote end
+#       inner_connection:
+#         health_endpoint: "health"
+#     capabilities:
+#       - name: "takeoff"
+#         description: "Launch drone at remote property"
+#         requires_confirmation: true
+#       - name: "patrol"
+#         description: "Patrol the remote property perimeter"
+#       - name: "get_camera"
+#         description: "Get live camera snapshot from the drone"
+#         category: "query"
+#
+# Example: Car tracker (Raspberry Pi with 4G + GPS)
+#
+#   - id: "car_tracker"
+#     name: "Car GPS Tracker"
+#     type: "tracker"
+#     location: "car"
+#     protocol: "tunnel"
+#     connection:
+#       vpn_ip: "10.0.0.60"
+#       port: 5000
+#       inner_protocol: "http"
+#     capabilities:
+#       - name: "get_location"
+#         description: "Get current GPS coordinates of the car"
+#         category: "query"
+#       - name: "get_speed"
+#         description: "Current speed from GPS"
+#         category: "query"
+#       - name: "get_history"
+#         description: "Get route history for today"
+#         category: "query"
+#
+# The VPN makes distance invisible to Leo. A device in another country
+# looks the same as one in the next room. All traffic is encrypted.
+#
+# For custom hardware (Arduino/ESP32), flash a sketch that:
+#   - Reads serial commands like "PANTILT 90 45" or "RELAY 0 1"
+#   - Sends back "OK" or status data
+#   - See docs/device_development.md for Arduino sketch templates

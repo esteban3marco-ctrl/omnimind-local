@@ -1,0 +1,30 @@
+# OMNIMIND LOCAL — Continuous Learning Configuration
+
+lora_training:
+  enabled: true
+  framework: "unsloth"                    # Maximum efficiency for LoRA
+  schedule:
+    frequency: "nightly"
+    time: "02:00"                          # Cron: trains while you sleep
+    min_new_samples: 50                    # Don't train with <50 new samples
+  hyperparameters:
+    lora_r: 16
+    lora_alpha: 32
+    lora_dropout: 0.05
+    learning_rate: 0.0002
+    batch_size: 4
+    num_epochs: 3
+
+dpo_training:
+  enabled: true
+  schedule: {frequency: "weekly", day: "sunday", time: "03:00"}
+  hyperparameters: {beta: 0.1, learning_rate: 0.00005}
+
+continual_learning:
+  ewc: {enabled: true, lambda: 5000}      # Elastic Weight Consolidation (anti-forgetting)
+  replay_buffer: {max_size: 10000, replay_ratio: 0.3}
+  adapter_merging: {method: "ties", merge_after_n: 5}
+
+benchmarks:
+  schedule: {frequency: "weekly", day: "sunday", time: "04:00"}
+  on_degradation: {action: "rollback", notify: true}   # Auto-rollback if performance drops

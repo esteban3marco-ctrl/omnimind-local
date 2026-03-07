@@ -1,0 +1,16 @@
+# OMNIMIND LOCAL — Context: Home
+# Behavior rules when Leo detects you're at home
+
+context: "home"
+detection: {method: "wifi_ssid"}    # Activates when home WiFi is detected
+
+behavior:
+  response_length: "normal"
+  voice_enabled: true
+  text_enabled: true
+  proactive_enabled: true
+  personality_by_time:
+    morning: {style: "Brief and efficient", proactive: ["agenda", "weather"]}
+    work: {style: "Productive, occasional humor", proactive: ["meetings", "break reminders"]}
+    evening: {style: "Relaxed, more humor", proactive: ["day summary"]}
+    night: {style: "Minimal, quiet voice", proactive: []}

@@ -1,0 +1,67 @@
+# OMNIMIND LOCAL — System Configuration v2.0 "PROMETHEUS"
+# Assistant: Leo
+
+system:
+  name: "OMNIMIND LOCAL"
+  codename: "PROMETHEUS"
+  assistant_name: "Leo"
+  version: "2.0"
+  owner: "Esteban"
+  locale: "es_ES"
+  timezone: "Europe/Madrid"
+  log_level: "INFO"
+
+services:
+  llm_server:
+    host: "127.0.0.1"
+    port: 8080
+    backend: "llama.cpp"
+  stt_server:
+    host: "127.0.0.1"
+    port: 8081
+    backend: "faster-whisper"
+  tts_server:
+    host: "127.0.0.1"
+    port: 8082
+    backend: "piper"
+  api_gateway:
+    host: "0.0.0.0"
+    port: 3001
+    backend: "fastapi"
+  ui_frontend:
+    host: "0.0.0.0"
+    port: 3000
+  redis:
+    host: "127.0.0.1"
+    port: 6379
+  vector_db:
+    host: "127.0.0.1"
+    port: 8083
+    backend: "chromadb"
+    persist_directory: "./data/memory/vectors"
+  health_monitor:
+    check_interval_seconds: 30
+    restart_on_failure: true
+
+message_bus:
+  backend: "redis"
+  channels:
+    - "omnimind.voice.input"
+    - "omnimind.voice.output"
+    - "omnimind.nlu.intent"
+    - "omnimind.context.update"
+    - "omnimind.agent.request"
+    - "omnimind.agent.response"
+    - "omnimind.memory.store"
+    - "omnimind.memory.recall"
+    - "omnimind.proactive.trigger"
+    - "omnimind.system.health"
+    - "omnimind.learning.feedback"
+
+paths:
+  models: "./models"
+  data: "./data"
+  configs: "./configs"
+  plugins: "./plugins"
+  logs: "./data/logs"
+  backups: "./data/backups"

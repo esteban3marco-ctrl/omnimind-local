@@ -1,0 +1,88 @@
+# LEO — Personal Knowledge Base
+# ═══════════════════════════════
+# This is Leo's "initial memory" — what he knows about you from day one.
+# Fill in each [placeholder] with your real data.
+# Indexed into ChromaDB on first boot.
+#
+# The more complete this is, the more useful Leo is from minute one.
+# Don't worry about format — Leo understands natural text.
+
+identity:
+  name: "[Your name]"
+  location:
+    city: "[Your city]"
+    region: "[Your region/state]"
+    country: "[Your country]"
+  languages:
+    - {language: "[Primary language]", level: "Native"}
+    - {language: "[Second language]", level: "[Fluent/Intermediate/Basic]"}
+
+profession:
+  title: "[Your title, e.g. Software Engineer]"
+  company: "[Company or 'Independent']"
+  certifications: ["[Cert 1]", "[Cert 2]"]
+  tech_stack:
+    primary: ["[Tech 1]", "[Tech 2]", "[Tech 3]"]
+    secondary: ["[Tech 4]", "[Tech 5]"]
+
+projects:
+  - name: "[Project name]"
+    description: "[Brief description]"
+    status: "[active / paused / completed]"
+    notes: "[Any relevant context]"
+  # Add more projects as needed
+
+routines:
+  wake_up: "[time, e.g. 7:30]"
+  work_start: "[time]"
+  lunch: "[time]"
+  work_end: "[time]"
+  bedtime: "[time]"
+  exercise: "[when and what type, if any]"
+
+preferences:
+  music:
+    genres: ["[genre 1]", "[genre 2]"]
+    for_focus: "[type of music for concentration]"
+    for_relaxing: "[type of music for relaxing]"
+  communication:
+    tone: "[e.g. Informal, humorous, direct]"
+    topics_of_interest: ["[topic 1]", "[topic 2]", "[topic 3]"]
+    topics_to_avoid: ["[topic, if any]"]
+
+home:
+  type: "[apartment/house/studio]"
+  rooms: ["[room 1]", "[room 2]", "[room 3]"]
+  wifi_ssid: "[Your WiFi network name — used to detect you're home]"
+  iot_devices: []  # Fill in when smart home is configured
+  # Example:
+  # - {name: "Living room light", type: "smart_light", brand: "Philips Hue"}
+
+car:
+  has_car: "[yes/no]"
+  # If yes, fill in:
+  # make: "[Make]"
+  # model: "[Model]"
+  # year: "[Year]"
+  # has_obd: "[yes/no]"
+  # infotainment: "[Apple CarPlay / Android Auto / Other]"
+  # usual_route: "[e.g. Home → Office via Highway 101]"
+
+goals:
+  short_term: ["[goal 1]", "[goal 2]"]    # Next 1-3 months
+  medium_term: ["[goal 1]", "[goal 2]"]    # 3-6 months
+  long_term: ["[goal 1]", "[goal 2]"]      # 6-12 months
+
+contacts: []
+  # Optional — only if you want Leo to know about key people
+  # - {name: "[Name]", relationship: "[friend/family/colleague]", notes: "[relevant info]"}
+
+additional_notes: |
+  [Anything else you want Leo to know from day one.
+  Write freely — Leo understands natural text.
+  
+  Examples:
+  - "I tend to procrastinate on big projects, help me break them into small tasks"
+  - "No work talk on Sundays"
+  - "I'm very visual — use analogies and concrete examples"
+  - "Recommend me podcasts and documentaries when I'm idle"]

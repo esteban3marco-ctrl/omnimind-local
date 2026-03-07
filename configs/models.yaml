@@ -1,0 +1,74 @@
+# OMNIMIND LOCAL — Models Configuration
+
+llm:
+  primary:
+    name: "Qwen2.5-72B-Instruct"
+    path: "./models/llm/qwen2.5-72b-instruct-q4_k_m.gguf"
+    quantization: "Q4_K_M"
+    context_length: 32768
+    gpu_layers: 45        # Adjust based on available VRAM (RTX 4090 = 24GB)
+    threads: 12
+    batch_size: 512
+    flash_attention: true
+  draft:
+    name: "Qwen2.5-7B-Instruct"
+    path: "./models/llm/qwen2.5-7b-instruct-q8_0.gguf"
+    quantization: "Q8_0"
+    context_length: 32768
+    gpu_layers: 99        # Fits entirely in GPU
+  mobile:
+    name: "Qwen2.5-3B-Instruct"
+    path: "./models/llm/qwen2.5-3b-instruct-q4_k_m.gguf"
+    quantization: "Q4_K_M"
+  router:
+    enabled: true
+    default_model: "draft"  # Use 7B by default (fast), upgrade to 72B for complex queries
+  speculative_decoding:
+    enabled: true
+    num_draft_tokens: 5     # Expected 2-3x speedup
+
+stt:
+  engine: "faster-whisper"
+  model: "large-v3-turbo"
+  model_path: "./models/stt/whisper-large-v3-turbo-ct2/"
+  compute_type: "int8"
+  device: "cuda"
+  language: "es"            # Primary language (auto-detect as fallback)
+  beam_size: 3
+  vad_filter: true
+
+tts:
+  engine: "piper"
+  default_voice: "es_ES-davefx-medium"
+  voices:
+    spanish:
+      model: "es_ES-davefx-medium"
+      path: "./models/tts/es_ES-davefx-medium.onnx"
+    english:
+      model: "en_US-amy-medium"
+      path: "./models/tts/en_US-amy-medium.onnx"
+  auto_language_switch: true
+  streaming: true
+
+wake_word:
+  engine: "openwakeword"
+  model_path: "./models/wake/hey_leo/"
+  threshold: 0.7
+  fallback_model: "hey_jarvis"
+
+vad:
+  engine: "silero"
+  threshold: 0.5
+  min_silence_duration_ms: 500
+
+embeddings:
+  model: "nomic-embed-text-v1.5"
+  path: "./models/embeddings/nomic-embed-v1.5/"
+  dimensions: 768
+  device: "cuda"
+
+reranker:
+  model: "bge-reranker-v2-m3"
+  path: "./models/reranker/bge-reranker-v2-m3/"
+  device: "cpu"
+  top_k: 5

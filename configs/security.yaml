@@ -1,0 +1,27 @@
+# OMNIMIND LOCAL — Security & Privacy Configuration
+# Privacy is not a feature — it's the architecture.
+
+network:
+  firewall:
+    default_outbound: "DENY"                          # Block ALL outbound by default
+    allowed_outbound: ["127.0.0.0/8", "192.168.1.0/24"]  # Only localhost + LAN
+    allowed_inbound: ["192.168.1.0/24"]               # Only LAN devices
+
+encryption:
+  algorithm: "AES-256-GCM"
+  key_derivation: "argon2id"    # Key derived from user passphrase at boot
+
+pii_detection:
+  engine: "presidio"            # Microsoft Presidio (local)
+  entities: ["PHONE_NUMBER", "EMAIL_ADDRESS", "CREDIT_CARD", "IBAN_CODE"]
+
+audit:
+  enabled: true
+  path: "./data/logs/audit/"
+  hash_chain: true              # SHA-256 chain — tamper-proof append-only log
+  retention_days: 90
+
+driving_mode:
+  max_response_tokens: 128
+  voice_only: true
+  blocked_tools: ["run_code", "draft_email", "search_files"]

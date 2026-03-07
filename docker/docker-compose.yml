@@ -1,0 +1,68 @@
+version: "3.8"
+# OMNIMIND LOCAL — Docker Compose
+# Deploy all services with: docker compose up -d
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  llm-server:
+    image: ghcr.io/ggerganov/llama.cpp:server-cuda
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models:ro
+    command: >
+      -m /models/llm/qwen2.5-7b-instruct-q8_0.gguf
+      -ngl 99
+      --host 0.0.0.0
+      --port 8080
+      -c 8192
+      --flash-attn
+      -t 12
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8083:8000"
+    volumes:
+      - ./data/memory/vectors:/chroma/chroma
+    restart: unless-stopped
+
+  omnimind:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./configs:/app/configs:ro
+      - ./data:/app/data
+      - ./plugins:/app/plugins:ro
+    environment:
+      - REDIS_HOST=redis
+      - LLM_HOST=llm-server
+      - CHROMA_HOST=chromadb
+    depends_on:
+      - redis
+      - llm-server
+      - chromadb
+    devices:
+      - /dev/snd  # Audio access
+    restart: unless-stopped
+
+volumes:
+  redis_data:

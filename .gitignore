@@ -1,0 +1,48 @@
+# OMNIMIND LOCAL — .gitignore
+
+# Models (too large for git)
+models/*.gguf
+models/llm/
+models/stt/
+models/tts/
+models/embeddings/
+models/reranker/
+models/vision/
+models/wake/
+
+# Data (private)
+data/memory/
+data/learning/
+data/logs/
+data/backups/
+data/*.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/volumes/
+
+# Environment
+.env
+*.pem
+*.key
+
+# Temp
+/tmp/
+*.tmp

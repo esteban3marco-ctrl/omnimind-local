@@ -1,0 +1,21 @@
+# OMNIMIND LOCAL — Agents & Tools Configuration
+
+orchestrator:
+  max_parallel_agents: 3
+  timeout_per_agent_seconds: 10
+
+agents:
+  calendar: {enabled: true, type: "caldav", url: "http://127.0.0.1:5232"}
+  files: {enabled: true, directories: ["~/Documents", "~/Projects"]}
+  notes: {enabled: true, directory: "~/Documents/notes"}
+  shopping: {enabled: true, storage: "./data/shopping_list.json"}
+  health: {enabled: true, storage: "./data/health_tracker.json"}
+  code: {enabled: true, sandbox: "firejail", max_time: 30}
+  music: {enabled: false, type: "mpd", host: "127.0.0.1", port: 6600}
+  home: {enabled: false, type: "mqtt", host: "127.0.0.1", port: 1883}
+  car: {enabled: false, type: "bluetooth"}
+  communication: {enabled: true}
+  # Physical systems (see configs/physical_systems.yaml for detailed config)
+  drone: {enabled: false}
+  surveillance: {enabled: false}
+  robotics: {enabled: false}
