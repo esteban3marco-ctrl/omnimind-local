@@ -31,7 +31,7 @@
 
 A fully private, locally-running cognitive AI platform that serves as your personal Jarvis. Leo (the assistant) operates across multiple environments — home PC, car, and mobile — sharing one unified brain with zero data ever touching the cloud.
 
-<img src="docs/leo_demo.gif?v=3" alt="OMNIMIND LOCAL Demo" width="100%" />
+![OMNIMIND LOCAL Demo](docs/leo_demo.gif)
 
 **Leo speaks your language.** Whatever language you talk to him in, he responds in the same language — English, Spanish, French, German, Japanese, or any language supported by the underlying LLM.
 
