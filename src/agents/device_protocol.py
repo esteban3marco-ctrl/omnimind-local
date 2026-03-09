@@ -311,7 +311,11 @@ class UDPAdapter(CommunicationAdapter):
     async def receive(self) -> Any:
         try:
             return self._socket.recv(1024).decode()
-        except:
+        except OSError as e:
+            logger.debug(f"UDP receive error (expected on timeout): {e}")
+            return None
+        except Exception as e:
+            logger.warning(f"UDP receive unexpected error: {e}")
             return None
 
     async def disconnect(self):

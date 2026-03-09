@@ -49,20 +49,36 @@ class OmniMind:
         from src.cognition.llm_engine import LLMEngine
         from src.cognition.rag_engine import RAGEngine
         from src.memory.vector_store import VectorStore
+        from src.memory.semantic_cache import SemanticCache
         from src.understanding.context_engine import ContextEngine
         from src.agents.orchestrator import AgentOrchestrator
+        from src.agents.device_protocol import DeviceOrchestrator
+        from src.agents.proactive_engine import ProactiveEngine
         from src.output.personality_engine import PersonalityEngine
         from src.learning.feedback_collector import FeedbackCollector
+
+        # Build core services first (LLM, vectors, devices)
+        vector_store = VectorStore(self.config)
+        llm_engine = LLMEngine(self.config, self.bus)
+        device_orchestrator = DeviceOrchestrator(self.config, self.bus)
+
+        # Wire semantic cache into LLM engine after vector store is available
+        semantic_cache = SemanticCache(vector_store)
+
+        # Build proactive engine with device awareness
+        proactive_engine = ProactiveEngine(self.config, self.bus, device_orchestrator)
 
         self.components = {
             "wake_word": WakeWordDetector(self.config, self.bus),
             "stt": STTEngine(self.config, self.bus),
             "tts": TTSEngine(self.config, self.bus),
-            "llm": LLMEngine(self.config, self.bus),
+            "llm": llm_engine,
             "rag": RAGEngine(self.config, self.bus),
-            "vectors": VectorStore(self.config),
+            "vectors": vector_store,
             "context": ContextEngine(self.config, self.bus),
             "agents": AgentOrchestrator(self.config, self.bus),
+            "devices": device_orchestrator,
+            "proactive": proactive_engine,
             "personality": PersonalityEngine(self.config),
             "feedback": FeedbackCollector(self.config, self.bus),
         }
@@ -74,6 +90,14 @@ class OmniMind:
                 logger.info(f"  ✓ {name}")
             except Exception as e:
                 logger.warning(f"  ✗ {name}: {e} (continuing without it)")
+
+        # Post-init wiring: attach semantic cache to LLM (needs vector store to be started first)
+        try:
+            semantic_cache.setup()
+            llm_engine.attach_semantic_cache(semantic_cache)
+            logger.info("  ✓ semantic cache wired into LLM engine")
+        except Exception as e:
+            logger.warning(f"  ✗ semantic cache wiring failed: {e}")
 
         # Start health monitoring
         asyncio.create_task(self.health.monitor_loop())
@@ -141,7 +165,7 @@ def main():
 
     # Handle shutdown signals
     for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, lambda: asyncio.create_task(app.shutdown()))
+        loop.add_signal_handler(sig, lambda s=sig: asyncio.create_task(app.shutdown()))
 
     try:
         loop.run_until_complete(app.start())
